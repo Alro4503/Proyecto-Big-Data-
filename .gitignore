@@ -1,10 +1,5 @@
-# Datos – no subir al repositorio
-data/housing.csv
+# CSV generado por el script (se puede regenerar con analisis.py)
 data/housing_clean.csv
-data/*.csv
-
-# Gráficos generados automáticamente (opcional: comentar si se quieren subir)
-graficos/*.png
 
 # Python
 __pycache__/
@@ -14,7 +9,7 @@ __pycache__/
 venv/
 env/
 
-# Jupyter (por si acaso)
+# Jupyter
 .ipynb_checkpoints/
 
 # Power BI
