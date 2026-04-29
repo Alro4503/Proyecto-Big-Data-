@@ -195,5 +195,3 @@ Proyecto-Big-Data-/
 │   └── README_docs.md         # Índice de documentación
 └── README.md                  # Este archivo
 ```
-
-> Añadir `housing.csv` y `housing_clean.csv` al `.gitignore` para no subir datos al repositorio.
