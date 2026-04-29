@@ -12,9 +12,6 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
-# Power BI
-*.pbix
-
 # OS
 .DS_Store
 Thumbs.db
