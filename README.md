@@ -1,7 +1,6 @@
 # Análisis de Precios de Vivienda en California
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)
-![SQL](https://img.shields.io/badge/BigQuery-SQL-orange?logo=google-cloud&logoColor=white)
 ![Power BI](https://img.shields.io/badge/Power%20BI-Dashboard-yellow?logo=powerbi&logoColor=black)
 ![Orange](https://img.shields.io/badge/Orange-Data%20Mining-orange)
 ![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker&logoColor=white)
@@ -19,6 +18,7 @@
 - [Conclusiones](#conclusiones)
 - [Bibliografía](#bibliografía)
 - [Estructura del proyecto](#estructura-del-proyecto)
+- [Anexos](#anexos)
 
 ---
 
@@ -60,7 +60,6 @@ Dos particularidades del dataset que afectan al análisis: `median_income` no es
 | Herramienta           | Uso                                                             |
 |-----------------------|-----------------------------------------------------------------|
 | Python 3.11           | Análisis exploratorio, limpieza, visualización, estandarización |
-| BigQuery SQL          | Consultas analíticas sobre la tabla del proyecto                |
 | Orange Data Mining    | Regresión lineal, árbol de decisión y Random Forest             |
 | Power BI Desktop      | Dashboard interactivo con mapas, KPIs y filtros                 |
 | Docker / Compose      | Entorno reproducible para ejecutar el script de análisis        |
@@ -157,6 +156,40 @@ Los gráficos se generan en `graficos/` y el CSV procesado en `data/housing_clea
 - Kaggle California Housing Prices Dataset. Licencia CC0 Public Domain. [https://www.kaggle.com/datasets/camnugent/california-housing-prices](https://www.kaggle.com/datasets/camnugent/california-housing-prices)
 - Chapman, P. et al. (2000). *CRISP-DM 1.0: Step-by-step data mining guide*. SPSS Inc.
 - McKinney, W. (2022). *Python for Data Analysis* (3.ª ed.). O'Reilly Media.
+- Demšar, J. et al. (2013). *Orange: Data Mining Toolbox in Python*. Journal of Machine Learning Research, 14, 2349-2353.
+- Microsoft (2024). *Power BI documentation*. [https://learn.microsoft.com/power-bi/](https://learn.microsoft.com/power-bi/)
+
+---
+
+## Anexos
+
+### Gráficos generados por Python
+
+| Histograma de precios | Scatter ingreso vs precio |
+|---|---|
+| ![Histograma](graficos/01_histograma_precios.png) | ![Scatter](graficos/02_scatter_ingresos_precio.png) |
+
+| Boxplot por proximidad al océano | Mapa de calor de correlaciones |
+|---|---|
+| ![Boxplot](graficos/03_boxplot_ocean_proximity.png) | ![Heatmap](graficos/04_heatmap_correlaciones.png) |
+
+![Mapa geoespacial](graficos/05_mapa_geoespacial.png)
+
+---
+
+### Flujo de trabajo — Orange Data Mining
+
+![Flujo de trabajo Orange](orange/orange_workflow.png)
+
+### Resultados de modelos — Orange Test and Score
+
+![Resultados Orange](orange/orange_results.png)
+
+---
+
+### Dashboard — Power BI
+
+![Dashboard Power BI](powerbi/PowerBI_Dashboard.png)
 
 ---
 
@@ -166,7 +199,7 @@ Los gráficos se generan en `graficos/` y el CSV procesado en `data/housing_clea
 Proyecto-Big-Data-/
 ├── data/
 │   ├── housing.csv
-│   └── housing_clean.csv
+│   └── housing_clean.csv        ← generado por analisis.py (no en git)
 ├── graficos/
 │   ├── 01_histograma_precios.png
 │   ├── 02_scatter_ingresos_precio.png
@@ -177,11 +210,13 @@ Proyecto-Big-Data-/
 │   ├── analisis.py
 │   ├── requirements.txt
 │   └── Dockerfile
-├── sql/
-│   └── queries.sql
 ├── orange/
+│   ├── orange_bigdata.ows
+│   ├── orange_workflow.png
+│   ├── orange_results.png
 │   └── README_orange.md
 ├── powerbi/
+│   ├── ProyectoHousingBigData.pbix
 │   └── README_powerbi.md
 ├── docs/
 │   └── README_docs.md
