@@ -1,0 +1,25 @@
+# Datos – no subir al repositorio
+data/housing.csv
+data/housing_clean.csv
+data/*.csv
+
+# Gráficos generados automáticamente (opcional: comentar si se quieren subir)
+graficos/*.png
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Jupyter (por si acaso)
+.ipynb_checkpoints/
+
+# Power BI
+*.pbix
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  analisis:
+    build:
+      context: ./python
+    volumes:
+      - ./data:/data
+      - ./graficos:/graficos
+    environment:
+      - DATA_DIR=/data
+      - GRAFICOS_DIR=/graficos
+      - PYTHONUNBUFFERED=1
