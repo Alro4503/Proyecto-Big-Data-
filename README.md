@@ -1,307 +1,290 @@
-# Análisis de Precios de Vivienda en California
+# California Housing Price Analysis
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)
 ![Power BI](https://img.shields.io/badge/Power%20BI-Dashboard-yellow?logo=powerbi&logoColor=black)
 ![Orange](https://img.shields.io/badge/Orange-Data%20Mining-orange)
 ![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker&logoColor=white)
-![Licencia](https://img.shields.io/badge/Licencia-CC0%20Public%20Domain-lightgrey)
-![Metodología](https://img.shields.io/badge/Metodología-CRISP--DM-green)
+![License](https://img.shields.io/badge/License-CC0%20Public%20Domain-lightgrey)
+![Methodology](https://img.shields.io/badge/Methodology-CRISP--DM-green)
 
 ---
 
-## Tabla de contenidos
+## Table of Contents
 
 - [Abstract](#abstract)
-- [Introducción](#introducción)
-- [Desarrollo](#desarrollo)
-  - [Herramientas](#herramientas)
-  - [Fase 1 — Comprensión del negocio](#fase-1--comprensión-del-negocio)
-  - [Fase 2 — Comprensión de los datos](#fase-2--comprensión-de-los-datos)
-  - [Fase 3 — Preparación de los datos](#fase-3--preparación-de-los-datos)
-  - [Fase 4 — Modelado](#fase-4--modelado)
-  - [Fase 5 — Evaluación](#fase-5--evaluación)
-  - [Fase 6 — Despliegue](#fase-6--despliegue)
-- [Resultados](#resultados)
-- [Conclusiones](#conclusiones)
-- [Bibliografía](#bibliografía)
-- [Anexos](#anexos)
-- [Estructura del proyecto](#estructura-del-proyecto)
+- [Introduction](#introduction)
+- [Development](#development)
+  - [Tools](#tools)
+  - [Phase 1 — Business Understanding](#phase-1--business-understanding)
+  - [Phase 2 — Data Understanding](#phase-2--data-understanding)
+  - [Phase 3 — Data Preparation](#phase-3--data-preparation)
+  - [Phase 4 — Modeling](#phase-4--modeling)
+  - [Phase 5 — Evaluation](#phase-5--evaluation)
+  - [Phase 6 — Deployment](#phase-6--deployment)
+- [Results](#results)
+- [Conclusions](#conclusions)
+- [Bibliography](#bibliography)
+- [Project Structure](#project-structure)
 
 ---
 
 ## Abstract
 
-Análisis del dataset California Housing (censo de 1990) aplicando la metodología CRISP-DM. El dataset recoge datos de 20.640 bloques censales del estado de California e incluye variables socioeconómicas, demográficas y geográficas. El objetivo es determinar qué factores influyen en el precio mediano de la vivienda a nivel de bloque censal. Se utilizan Python para el análisis exploratorio y la limpieza, Orange Data Mining para el modelado supervisado y Power BI para la visualización. El ingreso mediano del bloque resulta ser el predictor más relevante (r = 0,688), y el modelo Random Forest obtiene un R² de 0,797 en validación cruzada de 10 pliegues.
+Analysis of the California Housing dataset (1990 census) applying the CRISP-DM methodology. The dataset contains data from 20,640 census block groups across California, including socioeconomic, demographic, and geographic variables. The goal is to determine which factors drive median housing prices at the census block level. Python is used for exploratory analysis and data cleaning, Orange Data Mining for supervised modeling, and Power BI for visualization. Median block income is the strongest predictor (r = 0.688), and the Random Forest model achieves an R² of 0.797 in 10-fold cross-validation.
 
 ---
 
-## Introducción
+## Introduction
 
-El mercado inmobiliario californiano acumula décadas de tensión entre oferta y demanda, con precios que varían enormemente según la zona. Estudiar los factores detrás de esas diferencias tiene utilidad tanto para el análisis económico como para decisiones de planificación urbana o inversión.
+California's real estate market has faced decades of tension between supply and demand, with prices varying enormously by location. Studying the factors behind those differences is useful for both economic analysis and urban planning or investment decisions.
 
-El dataset utilizado proviene del censo de California de 1990 y fue publicado por Pace, R. Kelley y Ronald Barry (1997). Cada fila representa un **bloque censal** — la unidad geográfica mínima del censo americano — no una vivienda individual. Esto tiene implicaciones importantes: `total_rooms`, `total_bedrooms`, `population` y `households` son totales del bloque entero, no de una sola vivienda.
+The dataset comes from the 1990 California census and was published by Pace, R. Kelley and Ronald Barry (1997). Each row represents a **census block group** — the smallest geographic unit of the US census — not an individual dwelling. This has important implications: `total_rooms`, `total_bedrooms`, `population`, and `households` are block-level totals, not per-household figures.
 
-**Variables del dataset:**
+**Dataset variables:**
 
-| Variable               | Descripción                                              |
+| Variable               | Description                                              |
 |------------------------|----------------------------------------------------------|
-| `longitude`            | Longitud geográfica del bloque censal                    |
-| `latitude`             | Latitud geográfica del bloque censal                     |
-| `housing_median_age`   | Edad mediana de las viviendas del bloque (años)          |
-| `total_rooms`          | Total de habitaciones en el bloque censal                |
-| `total_bedrooms`       | Total de dormitorios en el bloque (207 nulos)            |
-| `population`           | Población total del bloque censal                        |
-| `households`           | Número de hogares en el bloque censal                    |
-| `median_income`        | Ingreso mediano del bloque (en decenas de miles de USD)  |
-| `median_house_value`   | Precio mediano de vivienda en USD — variable objetivo    |
-| `ocean_proximity`      | Proximidad al océano (5 categorías)                      |
+| `longitude`            | Geographic longitude of the census block                 |
+| `latitude`             | Geographic latitude of the census block                  |
+| `housing_median_age`   | Median age of housing units in the block (years)         |
+| `total_rooms`          | Total number of rooms in the census block                |
+| `total_bedrooms`       | Total number of bedrooms in the block (207 nulls)        |
+| `population`           | Total population of the census block                     |
+| `households`           | Number of households in the census block                 |
+| `median_income`        | Median block income (in tens of thousands of USD)        |
+| `median_house_value`   | Median house value in USD — target variable              |
+| `ocean_proximity`      | Proximity to the ocean (5 categories)                    |
 
-Dos particularidades del dataset afectan al análisis: `median_income` no está en USD directos sino en decenas de miles (un valor de 3,87 equivale a 38.700 USD reales), y `median_house_value` tiene un techo artificial en 500.001 USD impuesto durante la recogida del censo.
+Two dataset quirks affect the analysis: `median_income` is not in direct USD but in tens of thousands (a value of 3.87 equals $38,700), and `median_house_value` has an artificial ceiling at $500,001 imposed during census collection.
 
 ---
 
-## Desarrollo
+## Development
 
-### Herramientas
+### Tools
 
-| Herramienta           | Uso                                                             |
-|-----------------------|-----------------------------------------------------------------|
-| Python 3.11           | Análisis exploratorio, limpieza, visualización, estandarización |
-| Orange Data Mining    | Regresión lineal, árbol de decisión y Random Forest             |
-| Power BI Desktop      | Dashboard interactivo con mapas, KPIs y filtros                 |
-| Docker / Compose      | Entorno reproducible para ejecutar el script de análisis        |
+| Tool                  | Use                                                              |
+|-----------------------|------------------------------------------------------------------|
+| Python 3.11           | Exploratory analysis, data cleaning, visualization, scaling      |
+| Orange Data Mining    | Linear regression, decision tree, and Random Forest              |
+| Power BI Desktop      | Interactive dashboard with maps, KPIs, and filters               |
+| Docker / Compose      | Reproducible environment to run the analysis script              |
 
-**Ejecución del script Python:**
+**Running the Python script:**
 
 ```bash
-# Con Docker
+# With Docker
 git clone <repo-url>
-cd Proyecto-Big-Data-
+cd california-housing-analysis
 docker-compose up --build
 
-# En local
+# Locally
 cd python
 pip install -r requirements.txt
 python analisis.py
 ```
 
-Los gráficos se generan en `graficos/` y el CSV procesado en `data/housing_clean.csv`.
+Charts are generated in `graficos/` and the processed CSV in `data/housing_clean.csv`.
 
 ---
 
-### Fase 1 — Comprensión del negocio
+### Phase 1 — Business Understanding
 
-**Pregunta de negocio:** ¿Qué variables socioeconómicas, demográficas y geográficas determinan el precio mediano de la vivienda en los bloques censales de California?
+**Business question:** What socioeconomic, demographic, and geographic variables determine the median housing price in California census block groups?
 
-**Objetivo analítico:** construir modelos de regresión que permitan estimar `median_house_value` a partir del resto de variables, e identificar cuáles de ellas tienen mayor capacidad predictiva.
+**Analytical objective:** build regression models to estimate `median_house_value` from the remaining variables, and identify which of them have the greatest predictive power.
 
-**Restricciones identificadas al inicio:**
-- El dataset es de 1990; los precios absolutos no son extrapolables al mercado actual, pero los patrones relacionales sí son válidos como ejercicio de análisis.
-- La variable objetivo tiene un techo artificial en 500.001 USD que habrá que tener en cuenta durante la evaluación de modelos.
+**Constraints identified upfront:**
+- The dataset is from 1990; absolute prices are not extrapolable to the current market, but relational patterns remain valid as an analytical exercise.
+- The target variable has an artificial ceiling at $500,001 that must be accounted for during model evaluation.
 
 ---
 
-### Fase 2 — Comprensión de los datos
+### Phase 2 — Data Understanding
 
-El dataset tiene **20.640 filas** y **10 columnas** (9 numéricas + 1 categórica).
+The dataset has **20,640 rows** and **10 columns** (9 numeric + 1 categorical).
 
-**Exploración inicial con Python:**
+**Initial exploration with Python:**
 
 ```python
 df.shape        # (20640, 10)
 df.dtypes       # float64 x9, object x1
 df.isnull().sum()
-# total_bedrooms    207  ← único campo con nulos (1,0 % del total)
+# total_bedrooms    207  ← only field with nulls (1.0% of total)
 ```
 
-**Distribuciones relevantes:**
-- `median_house_value` presenta sesgo positivo moderado con un pico artificial en 500.001 USD.
-- `median_income` tiene una distribución aproximadamente log-normal, lo que justifica su alta correlación con el precio.
-- `population` y `total_rooms` muestran colas muy largas con valores extremos (máx. 35.682 personas en un bloque).
+**Relevant distributions:**
+- `median_house_value` shows moderate positive skew with an artificial spike at $500,001.
+- `median_income` follows an approximately log-normal distribution, which explains its high correlation with price.
+- `population` and `total_rooms` show very long tails with extreme values (max. 35,682 people in a block).
 
-**Hallazgo clave:** existe multicolinealidad fuerte entre `total_rooms`, `total_bedrooms`, `households` y `population` (todas miden tamaño del bloque). Las variables derivadas por hogar son más informativas.
+**Key finding:** strong multicollinearity exists between `total_rooms`, `total_bedrooms`, `households`, and `population` — all measure block size. Per-household derived variables are more informative.
+
+| Correlation heatmap | Income vs. price scatter |
+|---|---|
+| ![Correlation heatmap between variables](graficos/04_heatmap_correlaciones.png) | ![Scatter plot of median income vs. housing price](graficos/02_scatter_ingresos_precio.png) |
 
 ---
 
-### Fase 3 — Preparación de los datos
+### Phase 3 — Data Preparation
 
-Las transformaciones se aplicaron en este orden dentro de `python/analisis.py`:
+Transformations were applied in this order inside `python/analisis.py`:
 
-1. **Imputación de nulos** — los 207 valores faltantes en `total_bedrooms` se reemplazaron con la mediana (433,0). Se eligió la mediana sobre la media por la presencia de outliers en esa variable.
+1. **Null imputation** — the 207 missing values in `total_bedrooms` were replaced with the median (433.0). The median was chosen over the mean due to outliers in that variable.
 
-2. **Creación de variables derivadas:**
+2. **Derived variable creation:**
    ```python
    df['rooms_per_household']      = df['total_rooms']    / df['households']
    df['bedrooms_per_room']        = df['total_bedrooms'] / df['total_rooms']
    df['population_per_household'] = df['population']     / df['households']
    ```
 
-3. **Eliminación de outliers extremos** — se filtraron los bloques con `population_per_household` > 6 (bloques institucionales o errores de datos, menos del 0,5 % del total).
+3. **Extreme outlier removal** — blocks with `population_per_household` > 6 were filtered out (institutional blocks or data errors, less than 0.5% of the total).
 
-4. **One-hot encoding** de `ocean_proximity` (5 categorías → 4 columnas dummy, se descarta una para evitar multicolinealidad perfecta).
+4. **One-hot encoding** of `ocean_proximity` (5 categories → 4 dummy columns, one dropped to avoid perfect multicollinearity).
 
-5. **Estandarización z-score** de las variables numéricas continuas para el modelo de regresión lineal:
+5. **Z-score standardization** of continuous numeric variables for the linear regression model:
    ```python
    from sklearn.preprocessing import StandardScaler
    scaler = StandardScaler()
    df_scaled = scaler.fit_transform(df_numeric)
    ```
 
-El dataset limpio se exportó a `data/housing_clean.csv` (20.422 filas tras eliminar outliers extremos).
+The clean dataset was exported to `data/housing_clean.csv` (20,422 rows after removing extreme outliers).
 
 ---
 
-### Fase 4 — Modelado
+### Phase 4 — Modeling
 
-Se construyó un flujo de trabajo en Orange Data Mining con tres modelos evaluados mediante **validación cruzada estratificada de 10 pliegues**:
+An Orange Data Mining workflow was built with three models evaluated using **stratified 10-fold cross-validation**:
 
-- **Regresión lineal** — modelo base, asume relación lineal entre predictores y variable objetivo.
-- **Árbol de regresión** — captura relaciones no lineales; profundidad máxima limitada a 7 para evitar sobreajuste.
-- **Random Forest** — conjunto de 100 árboles con muestreo aleatorio de variables en cada nodo; parámetro `min_samples_leaf = 5`.
+- **Linear regression** — baseline model, assumes a linear relationship between predictors and the target.
+- **Regression tree** — captures non-linear relationships; maximum depth limited to 7 to avoid overfitting.
+- **Random Forest** — ensemble of 100 trees with random feature sampling at each node; `min_samples_leaf = 5`.
+
+![Orange Data Mining workflow with the three regression models](orange/orange_workflow.png)
 
 ---
 
-### Fase 5 — Evaluación
+### Phase 5 — Evaluation
 
-| Modelo             | R²        | RMSE (USD) | MAE (USD) |
+| Model              | R²        | RMSE (USD) | MAE (USD) |
 |--------------------|-----------|------------|-----------|
-| Regresión lineal   | 0,657     | 67.509     | 48.678    |
-| Árbol de regresión | 0,666     | 66.545     | 43.383    |
-| Random Forest      | **0,797** | **51.910** | **34.149**|
+| Linear regression  | 0.657     | 67,509     | 48,678    |
+| Regression tree    | 0.666     | 66,545     | 43,383    |
+| Random Forest      | **0.797** | **51,910** | **34,149**|
 
-**Interpretación:**
-- El salto de R² entre regresión lineal (0,657) y Random Forest (0,797) indica que hay relaciones no lineales relevantes que la regresión no captura.
-- Un MAE de 34.149 USD sobre precios que oscilan entre 15.000 y 500.001 USD supone un error medio del ~7 %, aceptable para datos de 1990 sin variables externas como tasas de interés o índices de criminalidad.
-- La brecha entre árbol individual y Random Forest confirma el efecto beneficioso del ensamblado: la varianza se reduce al promediar 100 árboles.
+![Orange Test and Score results for the three models](orange/orange_results.png)
+
+**Interpretation:**
+- The R² jump from linear regression (0.657) to Random Forest (0.797) indicates relevant non-linear relationships that regression cannot capture.
+- A MAE of $34,149 on prices ranging from $15,000 to $500,001 represents a mean error of ~7%, acceptable for 1990 data without external variables such as interest rates or crime indices.
+- The gap between a single tree and Random Forest confirms the benefit of ensembling: variance decreases by averaging 100 trees.
 
 ---
 
-### Fase 6 — Despliegue
+### Phase 6 — Deployment
 
-Los productos finales del proyecto son:
+The final project deliverables are:
 
-| Producto                              | Descripción                                              |
+| Deliverable                           | Description                                              |
 |---------------------------------------|----------------------------------------------------------|
-| `data/housing_clean.csv`              | Dataset limpio y listo para reutilizar                   |
-| `graficos/*.png`                      | 5 gráficos de análisis exploratorio generados por Python |
-| `orange/orange_bigdata.ows`           | Flujo de Orange reproducible con los tres modelos        |
-| `powerbi/ProyectoHousingBigData.pbix` | Dashboard interactivo con mapas, KPIs y filtros          |
-| `docker-compose.yml`                  | Entorno reproducible para ejecutar el script             |
+| `data/housing_clean.csv`              | Clean dataset ready for reuse                            |
+| `graficos/*.png`                      | 5 exploratory analysis charts generated by Python        |
+| `orange/orange_bigdata.ows`           | Reproducible Orange workflow with the three models       |
+| `powerbi/ProyectoHousingBigData.pbix` | Interactive dashboard with maps, KPIs, and filters       |
+| `docker-compose.yml`                  | Reproducible environment to run the script               |
+
+![Interactive Power BI dashboard with maps, KPIs, and category filters](powerbi/PowerBI_Dashboard.png)
 
 ---
 
-## Resultados
+## Results
 
-### Correlaciones con el precio
+### Correlations with price
 
-| Variable                   | r de Pearson |
+| Variable                   | Pearson r   |
 |----------------------------|-------------|
-| `median_income`            | **+0,688**  |
-| `rooms_per_household`      | +0,151      |
-| `housing_median_age`       | +0,106      |
-| `bedrooms_per_room`        | -0,259      |
-| `population_per_household` | -0,023      |
+| `median_income`            | **+0.688**  |
+| `rooms_per_household`      | +0.151      |
+| `housing_median_age`       | +0.106      |
+| `bedrooms_per_room`        | -0.259      |
+| `population_per_household` | -0.023      |
 
-### Precio mediano por proximidad al océano
+### Median price by ocean proximity
 
-| Categoría   | Precio mediano (USD) |
-|-------------|---------------------|
-| ISLAND      | ~380.000            |
-| NEAR BAY    | ~258.000            |
-| NEAR OCEAN  | ~243.000            |
-| \<1H OCEAN  | ~240.000            |
-| INLAND      | ~119.000            |
+| Category    | Median price (USD) |
+|-------------|-------------------|
+| ISLAND      | ~380,000          |
+| NEAR BAY    | ~258,000          |
+| NEAR OCEAN  | ~243,000          |
+| <1H OCEAN   | ~240,000          |
+| INLAND      | ~119,000          |
 
-### Comparativa de modelos (CV 10-fold, Orange Data Mining)
+| Price distribution | Price by ocean proximity |
+|---|---|
+| ![Histogram of median house value distribution in California](graficos/01_histograma_precios.png) | ![Boxplot of prices by ocean proximity category](graficos/03_boxplot_ocean_proximity.png) |
 
-| Modelo             | R²        | RMSE (USD) | MAE (USD) |
+### Model comparison (10-fold CV, Orange Data Mining)
+
+| Model              | R²        | RMSE (USD) | MAE (USD) |
 |--------------------|-----------|------------|-----------|
-| Regresión lineal   | 0,657     | 67.509     | 48.678    |
-| Árbol de regresión | 0,666     | 66.545     | 43.383    |
-| Random Forest      | **0,797** | **51.910** | **34.149**|
+| Linear regression  | 0.657     | 67,509     | 48,678    |
+| Regression tree    | 0.666     | 66,545     | 43,383    |
+| Random Forest      | **0.797** | **51,910** | **34,149**|
 
 ---
 
-## Conclusiones
+## Conclusions
 
-1. **El ingreso del bloque censal es el factor más determinante del precio.** Con una correlación de r = 0,688, `median_income` explica por sí solo más variabilidad en el precio que el resto de variables combinadas. La desigualdad económica se refleja directamente en el mercado inmobiliario.
+1. **Block income is the single strongest driver of housing prices.** With a correlation of r = 0.688, `median_income` alone explains more variance in price than all other variables combined. Economic inequality is directly reflected in the housing market.
 
-2. **Vivir cerca del océano tiene un precio.** Los bloques `ISLAND` y `NEAR BAY` tienen precios medianos más de tres veces superiores a los bloques del interior (`INLAND`). La localización geográfica introduce una prima que las variables socioeconómicas no capturan por sí solas.
+2. **Proximity to the ocean commands a premium.** `ISLAND` and `NEAR BAY` blocks have median prices more than three times higher than inland (`INLAND`) blocks. Geographic location introduces a premium that socioeconomic variables alone cannot capture.
 
-3. **El techo de 500.001 USD distorsiona el extremo superior de la distribución.** Alrededor del 7 % de los bloques alcanzan ese valor máximo artificial, lo que comprime la cola derecha y puede sesgar al alza los modelos de regresión en ese rango.
+3. **The $500,001 ceiling distorts the upper end of the distribution.** Around 7% of blocks hit that artificial maximum, compressing the right tail and potentially biasing regression models upward in that range.
 
-4. **Las variables de tamaño del bloque están multicolineadas.** `total_rooms`, `total_bedrooms`, `households` y `population` contienen información muy solapada. Las variables derivadas por hogar (`rooms_per_household`, `bedrooms_per_room`) son más informativas porque normalizan esa redundancia.
+4. **Block-size variables are multicollinear.** `total_rooms`, `total_bedrooms`, `households`, and `population` carry heavily overlapping information. Per-household derived variables (`rooms_per_household`, `bedrooms_per_room`) are more informative because they normalize that redundancy.
 
-5. **Los precios altos se concentran geográficamente.** El mapa muestra clústeres claros en el Área de la Bahía de San Francisco y la cuenca de Los Ángeles, lo que confirma que latitud y longitud son predictores útiles y que los modelos espaciales podrían mejorar los resultados obtenidos.
+5. **High prices cluster geographically.** The map shows clear clusters in the San Francisco Bay Area and the Los Angeles basin, confirming that latitude and longitude are useful predictors and that spatial models could improve on the results obtained.
+
+![Geospatial map of housing price distribution across California](graficos/05_mapa_geoespacial.png)
 
 ---
 
-## Bibliografía
+## Bibliography
 
-### Fuentes académicas y técnicas
+### Academic and technical sources
 
 - Pace, R. Kelley & Ronald Barry (1997). *Sparse Spatial Autoregressions*. Statistics & Probability Letters, 33(3), 291-297.
-- Géron, A. (2022). *Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow* (3.ª ed.). O'Reilly Media.
+- Géron, A. (2022). *Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow* (3rd ed.). O'Reilly Media.
 - Chapman, P. et al. (2000). *CRISP-DM 1.0: Step-by-step data mining guide*. SPSS Inc.
-- McKinney, W. (2022). *Python for Data Analysis* (3.ª ed.). O'Reilly Media.
+- McKinney, W. (2022). *Python for Data Analysis* (3rd ed.). O'Reilly Media.
 - Demšar, J. et al. (2013). *Orange: Data Mining Toolbox in Python*. Journal of Machine Learning Research, 14, 2349-2353.
 
-### Fuentes de datos y documentación
+### Data sources and documentation
 
-- Kaggle California Housing Prices Dataset. Licencia CC0 Public Domain. [https://www.kaggle.com/datasets/camnugent/california-housing-prices](https://www.kaggle.com/datasets/camnugent/california-housing-prices)
+- Kaggle California Housing Prices Dataset. CC0 Public Domain License. [https://www.kaggle.com/datasets/camnugent/california-housing-prices](https://www.kaggle.com/datasets/camnugent/california-housing-prices)
 - Microsoft (2024). *Power BI documentation*. [https://learn.microsoft.com/power-bi/](https://learn.microsoft.com/power-bi/)
 
-### Herramientas de inteligencia artificial utilizadas
+### AI tools used
 
-Durante el desarrollo de este proyecto se utilizaron herramientas de IA generativa como apoyo en las siguientes tareas:
+Generative AI tools were used as support during this project for the following tasks:
 
-| Herramienta        | Uso                                                                              |
+| Tool               | Use                                                                              |
 |--------------------|----------------------------------------------------------------------------------|
-| Claude (Anthropic) | Asistencia en la revisión y estructuración del código Python y la documentación  |
+| Claude (Anthropic) | Assistance with Python code review, structuring, and documentation               |
 
-El uso de estas herramientas se limitó a soporte en la redacción de código, revisión de calidad y organización de la documentación. Todo el análisis, las decisiones metodológicas y las conclusiones son propias del autor.
-
----
-
-## Anexos
-
-### Gráficos generados por Python
-
-| Histograma de precios | Scatter ingreso vs precio |
-|---|---|
-| ![Histograma de distribución del precio mediano de vivienda en California](graficos/01_histograma_precios.png) | ![Dispersión entre ingreso mediano y precio de vivienda](graficos/02_scatter_ingresos_precio.png) |
-
-| Boxplot por proximidad al océano | Mapa de calor de correlaciones |
-|---|---|
-| ![Boxplot de precios por categoría de proximidad al océano](graficos/03_boxplot_ocean_proximity.png) | ![Mapa de calor de correlaciones entre variables](graficos/04_heatmap_correlaciones.png) |
-
-![Mapa geoespacial de distribución de precios en California](graficos/05_mapa_geoespacial.png)
+The use of these tools was limited to coding support, quality review, and documentation organization. All analysis, methodological decisions, and conclusions are the author's own.
 
 ---
 
-### Flujo de trabajo — Orange Data Mining
-
-![Flujo de trabajo en Orange Data Mining con los tres modelos de regresión](orange/orange_workflow.png)
-
-### Resultados de modelos — Orange Test and Score
-
-![Tabla de resultados de los tres modelos en Orange Test and Score](orange/orange_results.png)
-
----
-
-### Dashboard — Power BI
-
-![Dashboard interactivo de Power BI con mapas, KPIs y filtros por categoría](powerbi/PowerBI_Dashboard.png)
-
----
-
-## Estructura del proyecto
+## Project Structure
 
 ```
-Proyecto-Big-Data-/
+california-housing-analysis/
 ├── data/
-│   ├── housing.csv                  ← dataset original (CC0)
-│   └── housing_clean.csv            ← generado por analisis.py
+│   ├── housing.csv                  ← original dataset (CC0)
+│   └── housing_clean.csv            ← generated by analisis.py
 ├── graficos/
 │   ├── 01_histograma_precios.png
 │   ├── 02_scatter_ingresos_precio.png
